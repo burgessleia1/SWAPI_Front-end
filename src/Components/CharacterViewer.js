@@ -1,36 +1,88 @@
-# Skeleton for CharacterViewer.js
-$viewerSkeleton = @"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { GetCharacterById } from '../API/CharacterAPI';
+import { Card, Col, Container, ListGroup, Row, Spinner } from 'react-bootstrap';
+import { sentenceCase } from 'change-case';
 
 const CharacterViewer = () => {
-    return <div>Character details will go here</div>;
-};
+    const { id } = useParams(); // Get character ID from URL params
+    const [character, setCharacter] = useState(null);
 
-export default CharacterViewer;
-"@
-Set-Content -Path ".\Components\CharacterViewer.js" -Value $viewerSkeleton
+    // Fetch character data by ID
+    useEffect(() => {
+        GetCharacterById(id).then((res) => {
+            setCharacter(res.data.result);
+        });
+    }, [id]);
 
-# Skeleton for NavBar.js
-$navSkeleton = @"
-import React from 'react';
-import { Navbar, Container, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-
-const NavBar = () => {
     return (
-        <Navbar bg='dark' variant='dark'>
-            <Container>
-                <Navbar.Brand as={Link} to='/'>SWAPI App</Navbar.Brand>
-                <Nav className='me-auto'>
-                    <Nav.Link as={Link} to='/'>Home</Nav.Link>
-                </Nav>
-            </Container>
-        </Navbar>
+        <Container className="my-5">
+            {character ? (
+                <Row>
+                    {/* Left Column - Character Details */}
+                    <Col md={6} className='mb-4'>
+                        <Card className='shadow-sm'>
+                            <Card.Body>
+                                <Card.Title className='display-5 mb-3'>
+                                    {character.properties.name}
+                                </Card.Title>
+                                <Card.Subtitle className='mb-3 text-muted'>
+                                    {sentenceCase(character.properties.gender)}
+                                </Card.Subtitle>
+                                <Card.Text>
+                                    <ListGroup variant='flush'>
+                                        <ListGroup.Item>
+                                            <strong>Height:</strong> {character.properties.height} cm
+                                        </ListGroup.Item>
+                                        <ListGroup.Item>
+                                            <strong>Weight:</strong> {character.properties.mass} kg
+                                        </ListGroup.Item>
+                                        <ListGroup.Item>
+                                            <strong>Eye Color:</strong> {sentenceCase(character.properties.eye_color)}
+                                        </ListGroup.Item>
+                                        <ListGroup.Item>
+                                            <strong>Hair Color:</strong> {sentenceCase(character.properties.hair_color)}
+                                        </ListGroup.Item>
+                                    </ListGroup>
+                                </Card.Text>
+                                <Card.Footer className='bg-white'>
+                                    <Card.Link>
+                                        Add link to planet here
+                                    </Card.Link>
+                                </Card.Footer>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {/* Right Column - Additional Details */}
+                    <Col md={6}>
+                        <Card className='shadow-sm'>
+                            <Card.Body>
+                                <Card.Text>
+                                    <ListGroup variant='flush'>
+                                        <ListGroup.Item>
+                                            <strong>Skin Color:</strong> {sentenceCase(character.properties.skin_color)}
+                                        </ListGroup.Item>
+                                        <ListGroup.Item>
+                                            <strong>Description:</strong> {character.description}
+                                        </ListGroup.Item>
+                                        <ListGroup.Item>
+                                            <strong>Birth Year:</strong> {character.properties.birth_year}
+                                        </ListGroup.Item>
+                                    </ListGroup>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            ) : (
+                // Loading Spinner
+                <Container className='d-flex justify-content-center align-items-center' style={{ height: '100vh' }}>
+                    <Spinner animation='grow' />
+                </Container>
+            )}
+        </Container>
     );
 };
 
-export default NavBar;
-"@
-Set-Content -Path ".\Components\NavBar.js" -Value $navSkeleton
-
-Write-Host "Skeletons for CharacterViewer.js and NavBar.js created"
+export default CharacterViewer;
