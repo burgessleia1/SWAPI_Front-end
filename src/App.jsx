@@ -17,7 +17,7 @@ function App() {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch(https://swapi.dev/api/people/?search=);
+        const response = await fetch(`https://swapi.dev/api/people/?search=${searchTerm}`);
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         setCharacters(data.results);
@@ -54,3 +54,4 @@ function App() {
 }
 
 export default App;
+
