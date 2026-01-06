@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import { GetCharacters, GetCharacterById } from './API/CharacterAPI';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,10 +18,13 @@ function App() {
       setLoading(true);
       setError('');
       try {
-        const response = await fetch(`https://swapi.dev/api/people/?search=${searchTerm}`);
-        if (!response.ok) throw new Error('Failed to fetch');
-        const data = await response.json();
-        setCharacters(data.results);
+        // Using axios function from CharacterAPI.js
+        const response = await GetCharacters();
+        // Filter results based on search term
+        const filtered = response.data.results.filter(char =>
+          char.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setCharacters(filtered);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -44,8 +48,8 @@ function App() {
       {error && <p className='error'>Error: {error}</p>}
       <ul>
         {characters.map((char) => (
-          <li key={char.url}>
-            <strong>{char.name}</strong> - {char.gender}, {char.birth_year}
+          <li key={char.uid}>
+            <strong>{char.name}</strong> - {char.gender || 'unknown'}, {char.birth_year || 'unknown'}
           </li>
         ))}
       </ul>
